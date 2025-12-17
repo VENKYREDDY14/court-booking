@@ -32,7 +32,7 @@ const pricingRuleSchema = new mongoose.Schema({
 });
 
 const bookingSchema = new mongoose.Schema({
-    user: { type: String, default: 'Guest' }, // Simplified user for now
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Reference to User model
     court: { type: mongoose.Schema.Types.ObjectId, ref: 'Court', required: true },
     date: { type: Date, required: true }, // ISO Date
     startTime: { type: String, required: true }, // HH:mm
@@ -50,10 +50,37 @@ const bookingSchema = new mongoose.Schema({
 // Compound index to prevent double booking of court
 bookingSchema.index({ court: 1, date: 1, startTime: 1 }, { unique: true });
 
+const userSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const waitlistSchema = new mongoose.Schema({
+    court: { type: mongoose.Schema.Types.ObjectId, ref: 'Court', required: true },
+    date: { type: Date, required: true },
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const notificationSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    message: { type: String, required: true },
+    read: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+});
+
 const Court = mongoose.model('Court', courtSchema);
 const Equipment = mongoose.model('Equipment', equipmentSchema);
 const Coach = mongoose.model('Coach', coachSchema);
 const PricingRule = mongoose.model('PricingRule', pricingRuleSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
+const User = mongoose.model('User', userSchema);
+const Waitlist = mongoose.model('Waitlist', waitlistSchema);
+const Notification = mongoose.model('Notification', notificationSchema);
 
-module.exports = { Court, Equipment, Coach, PricingRule, Booking };
+module.exports = { Court, Equipment, Coach, PricingRule, Booking, User, Waitlist, Notification };

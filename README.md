@@ -23,7 +23,7 @@ A full-stack web application for managing sports facility bookings with dynamic 
 
 1. **Clone the repository**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/VENKYREDDY14/court-booking.git
    cd court-booking
    ```
 

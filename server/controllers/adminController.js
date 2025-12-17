@@ -89,7 +89,10 @@ exports.deletePricingRule = async (req, res) => {
 // --- Bookings Admin ---
 exports.getAllBookings = async (req, res) => {
     try {
-        const bookings = await Booking.find({}).sort({ date: -1 }).populate('court').populate('coach');
+        const bookings = await Booking.find({}).sort({ date: -1 })
+            .populate('court')
+            .populate('coach')
+            .populate('user', 'name email');
         res.json(bookings);
     } catch (err) { res.status(500).json({ message: err.message }); }
 };

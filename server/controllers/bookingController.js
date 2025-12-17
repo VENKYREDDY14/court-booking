@@ -6,8 +6,8 @@ const { Booking } = require('../models');
 exports.createBooking = async (req, res) => {
     try {
         const booking = await BookingService.createBooking({
-            userId: req.body.userId || 'Guest', // simplified
-            ...req.body
+            ...req.body,
+            userId: req.user.id
         });
         res.status(201).json(booking);
     } catch (error) {
@@ -36,9 +36,18 @@ exports.calculatePrice = async (req, res) => {
 
 exports.getBookings = async (req, res) => {
     try {
-        const bookings = await Booking.find({}).sort({ date: -1, startTime: -1 });
+        const bookings = await Booking.find({ user: req.user.id }).sort({ date: -1, startTime: -1 });
         res.json(bookings);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
+
+exports.cancelBooking = async (req, res) => {
+    try {
+        const result = await BookingService.cancelBooking(req.params.id);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

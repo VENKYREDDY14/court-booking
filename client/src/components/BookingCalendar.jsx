@@ -2,34 +2,40 @@ import React from 'react';
 
 function BookingCalendar({ date, setDate, startTime, setStartTime, endTime, setEndTime }) {
     return (
-        <div className="grid grid-cols-3" style={{ gap: '1rem' }}>
-            <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Date</label>
-                <input
-                    type="date"
-                    className="input"
-                    value={date}
-                    min={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setDate(e.target.value)}
-                />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="space-y-2">
+                <label className="label">Date</label>
+                <div className="relative">
+                    <input
+                        type="date"
+                        className="input cursor-pointer"
+                        value={date}
+                        min={new Date().toISOString().split('T')[0]}
+                        onChange={(e) => setDate(e.target.value)}
+                    />
+                </div>
             </div>
-            <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Start Time</label>
-                <input
-                    type="time"
-                    className="input"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                />
+            <div className="space-y-2">
+                <label className="label">Start Time</label>
+                <div className="relative">
+                    <input
+                        type="time"
+                        className="input cursor-pointer"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                    />
+                </div>
             </div>
-            <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>End Time</label>
-                <input
-                    type="time"
-                    className="input"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                />
+            <div className="space-y-2">
+                <label className="label">End Time</label>
+                <div className="relative">
+                    <input
+                        type="time"
+                        className="input cursor-pointer"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                    />
+                </div>
             </div>
         </div>
     );

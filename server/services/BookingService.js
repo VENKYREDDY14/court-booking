@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Booking } = require('../models');
+const { Booking, Waitlist, Notification, User } = require('../models');
 const AvailabilityService = require('./AvailabilityService');
 const PricingService = require('./PricingService');
 
@@ -56,6 +56,62 @@ class BookingService {
             await session.commitTransaction();
             session.endSession();
             return booking;
+
+        } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
+    }
+    static async cancelBooking(bookingId) {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const booking = await Booking.findById(bookingId);
+            if (!booking) throw new Error('Booking not found');
+
+            // 1. Check Time Limit (e.g. 24 hours)
+            const bookingDateTime = new Date(booking.date);
+            const [hours, minutes] = booking.startTime.split(':');
+            bookingDateTime.setHours(hours, minutes, 0, 0);
+
+            const now = new Date();
+            const diffHours = (bookingDateTime - now) / (1000 * 60 * 60);
+
+            if (diffHours < 24) {
+                throw new Error('Cancellation is only allowed 24 hours before the slot time.');
+            }
+
+            // 2. Cancel Booking
+            booking.status = 'CANCELLED';
+            await booking.save({ session });
+            // Alternatively: await Booking.findByIdAndDelete(bookingId, { session });
+
+            // 2. Check Waitlist
+            const nextInLine = await Waitlist.findOne({
+                court: booking.court,
+                date: booking.date,
+                startTime: booking.startTime
+            }).sort({ createdAt: 1 }); // FIFO
+
+            if (nextInLine) {
+                // 3. Notify User
+                const message = `Slot Availaeble! Court ${booking.court} on ${new Date(booking.date).toLocaleDateString()} at ${booking.startTime} is now free. Book it now!`;
+
+                await Notification.create([{
+                    user: nextInLine.user,
+                    message: message
+                }], { session });
+
+                console.log(`NOTIFYING USER ${nextInLine.user}: ${message}`);
+
+                // Remove from waitlist (or keep until they book? usually remove to prevent spam)
+                await Waitlist.findByIdAndDelete(nextInLine._id, { session });
+            }
+
+            await session.commitTransaction();
+            session.endSession();
+            return { message: 'Booking cancelled', notified: !!nextInLine };
 
         } catch (error) {
             await session.abortTransaction();

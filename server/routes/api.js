@@ -4,15 +4,8 @@ const resourceController = require('../controllers/resourceController');
 const bookingController = require('../controllers/bookingController');
 
 const adminController = require('../controllers/adminController');
-
-// Resources
-router.get('/resources', resourceController.getResources);
-
-// Bookings
-router.post('/bookings', bookingController.createBooking);
-router.get('/bookings', bookingController.getBookings);
-router.post('/bookings/availability', bookingController.checkAvailability);
-router.post('/bookings/price', bookingController.calculatePrice);
+const authMiddleware = require('../middleware/auth');
+const authController = require('../controllers/authController');
 
 // Admin API
 // Courts
@@ -30,7 +23,29 @@ router.post('/admin/coaches', adminController.createCoach);
 router.put('/admin/coaches/:id', adminController.updateCoach);
 router.delete('/admin/coaches/:id', adminController.deleteCoach);
 
-// Rules
+// Auth
+router.post('/auth/register', authController.register);
+router.post('/auth/login', authController.login);
+
+// Resources
+router.get('/resources', resourceController.getResources);
+
+// Bookings
+router.post('/bookings', authMiddleware, bookingController.createBooking); // Protect create
+router.post('/bookings/:id/cancel', authMiddleware, bookingController.cancelBooking);
+router.get('/bookings', authMiddleware, bookingController.getBookings);
+router.post('/bookings/availability', bookingController.checkAvailability);
+router.post('/bookings/price', bookingController.calculatePrice);
+router.get('/auth/me', authMiddleware, authController.getMe);
+router.get('/auth/notifications', authMiddleware, authController.getNotifications);
+router.put('/auth/notifications/:id/read', authMiddleware, authController.markNotificationRead);
+
+// Waitlist
+const waitlistController = require('../controllers/waitlistController');
+router.post('/waitlist', authMiddleware, waitlistController.joinWaitlist);
+router.get('/waitlist', authMiddleware, waitlistController.getWaitlistStatus);
+
+// Resources);
 router.get('/admin/rules', adminController.getPricingRules);
 router.post('/admin/rules', adminController.createPricingRule);
 router.put('/admin/rules/:id', adminController.updatePricingRule);
