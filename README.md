@@ -90,7 +90,7 @@ This modular approach ensures that "Business Logic" is configuration-driven, sat
 
 ### Atomic Booking Transaction
 To handle multi-resource bookings (Court + Shoes + Coach), we use **MongoDB Sessions (Transactions)**.
-1. Start Transaction.
+1. Start Transaction..
 2. Verify availability of ALL resources (Court empty? Coach free? Shoes in stock?).
 3. Calculate final price (to prevent frontend tampering).
 4. Insert Booking.
